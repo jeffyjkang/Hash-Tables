@@ -142,6 +142,8 @@ void hash_table_remove(BasicHashTable *ht, char *key)
     // invoke destroy pair function, which frees malloc'ed memory
     destroy_pair(ht->storage[hashIndex]);
   }
+  // reassign storage at hashindex to null
+  ht->storage[hashIndex] = NULL;
 }
 
 /****
@@ -170,6 +172,9 @@ char *hash_table_retrieve(BasicHashTable *ht, char *key)
  ****/
 void destroy_hash_table(BasicHashTable *ht)
 {
+  // loop through capacity, if storage at i exists destroy pair,
+  // reassign ht storage at i to null
+  // free storage and ht
 }
 
 #ifndef TESTING
