@@ -134,6 +134,14 @@ void hash_table_insert(BasicHashTable *ht, char *key, char *value)
  ****/
 void hash_table_remove(BasicHashTable *ht, char *key)
 {
+  // first we need to find the hash index, same as insert
+  unsigned int hashIndex = hash(key, ht->capacity);
+  // if ht at storage index hashIndex exists
+  if (ht->storage[hashIndex])
+  {
+    // invoke destroy pair function, which frees malloc'ed memory
+    destroy_pair(ht->storage[hashIndex]);
+  }
 }
 
 /****
@@ -143,6 +151,7 @@ void hash_table_remove(BasicHashTable *ht, char *key)
  ****/
 char *hash_table_retrieve(BasicHashTable *ht, char *key)
 {
+  // repeat to find hash index
   return NULL;
 }
 
