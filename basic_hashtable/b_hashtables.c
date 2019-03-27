@@ -97,7 +97,8 @@ BasicHashTable *create_hash_table(int capacity)
   // use calloc which allocates mem and initializes allocated mem block to zero
   // arguments: num of blacks to be allocated, size of each block
   // in this case it is capacity and the bytes to fit in the Pair struct
-  ht->storage = calloc(capacity, sizeof(Pair));
+  // malloc size of pointer
+  ht->storage = calloc(capacity, sizeof(Pair *));
   // return new ht
   return ht;
 }
