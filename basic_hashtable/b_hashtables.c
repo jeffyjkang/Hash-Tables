@@ -21,7 +21,7 @@ typedef struct BasicHashTable
 {
   // hash table has capacity
   int capacity;
-  // Pair struct type with pointer to array
+  // Pair struct type with pointer to array storage, which is an array of key value pairs
   Pair **storage;
   // Basic Hash Table
 } BasicHashTable;
@@ -89,8 +89,16 @@ unsigned int hash(char *str, int max)
  ****/
 BasicHashTable *create_hash_table(int capacity)
 {
-  BasicHashTable *ht;
-
+  // From the BasicHashTable struct, create new ht pointer, allocate enough memory for Basic HashTable type
+  // ht has capacity and storage
+  BasicHashTable *ht = malloc(sizeof(BasicHashTable));
+  // assign the int type capacity to the capacity of the ht struct
+  ht->capacity = capacity;
+  // use calloc which allocates mem and initializes allocated mem block to zero
+  // arguments: num of blacks to be allocated, size of each block
+  // in this case it is capacity and the bytes to fit in the Pair struct
+  ht->storage = calloc(capacity, sizeof(Pair));
+  // return new ht
   return ht;
 }
 
