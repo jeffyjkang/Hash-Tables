@@ -111,6 +111,19 @@ BasicHashTable *create_hash_table(int capacity)
  ****/
 void hash_table_insert(BasicHashTable *ht, char *key, char *value)
 {
+  //our hash function expects to return unsigned int type, and two arguments, key and max, which is capacity
+  unsigned int hashIndex = hash(key, ht->capacity);
+  // if we are overwriting value with different key, print warning,
+  // we can check if there is a value at the storage index
+  if (ht->storage[hashIndex])
+  {
+    // print warning
+    printf("There is already a value at that current hash index, overwriting.");
+    // invoke destroy pair function, which frees malloc'ed memory
+    destroy_pair(ht->storage[hashIndex]);
+  }
+  // create new pair and store it at the hash index
+  ht->storage[hashIndex] = create_pair(key, value);
 }
 
 /****
