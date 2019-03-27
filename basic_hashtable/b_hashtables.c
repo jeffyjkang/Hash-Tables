@@ -97,7 +97,7 @@ BasicHashTable *create_hash_table(int capacity)
   // use calloc which allocates mem and initializes allocated mem block to zero
   // arguments: num of blacks to be allocated, size of each block
   // in this case it is capacity and the bytes to fit in the Pair struct
-  // malloc size of pointer
+  // calloc Pair type pointer
   ht->storage = calloc(capacity, sizeof(Pair *));
   // return new ht
   return ht;
@@ -152,6 +152,14 @@ void hash_table_remove(BasicHashTable *ht, char *key)
 char *hash_table_retrieve(BasicHashTable *ht, char *key)
 {
   // repeat to find hash index
+  unsigned int hashIndex = hash(key, ht->capacity);
+  // if ht at storage index hash index exists
+  if (ht->storage[hashIndex])
+  {
+    // return the value at the storage at the hash index
+    return ht->storage[hashIndex]->value;
+  }
+  // if no value at storage at hash index, return null
   return NULL;
 }
 
