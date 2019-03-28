@@ -122,6 +122,36 @@ void hash_table_insert(HashTable *ht, char *key, char *value)
 {
   // assign hashIndex , two args, key, max (capacity)
   unsigned int hashIndex = hash(key, ht->capacity);
+  // check if the bucket at that index is occupied, if something in bucket, linkedpair, if not null
+  // assign the current_pair pointer to storage at hash index
+  LinkedPair *current_pair = ht->storage[hashIndex];
+  // create pointer to last pair
+  LinkedPair *last_pair;
+  // if it is occupied, walk through the linkedpairs to see if you find a pair with same key
+  // due to the && wont do a string comparison if current pair is null,
+  // if current pair is not null, exits while loop right away
+  // check if current pair and key passed in is not same
+  while (current_pair != NULL && strcmp(current_pair->key, key) != 0)
+  {
+    // set last pair to current pair
+    last_pair = current_pair;
+    // set current pair to last pair next
+    current_pair = last_pair->next;
+  }
+  if (current_pair != NULL)
+  {
+    // if current pair is occupied
+    current_pair->value = value;
+  }
+  else
+  {
+    // if its not occupied, add a new linkedpair to bucket
+    LinkedPair *new_pair = create_pair(key, value);
+    // assign the storage at hash index to the new pair next
+    new_pair->next = ht->storage[hashIndex];
+    // assign the new pair to storage at hash index
+    ht->storage[hashIndex] = new_pair;
+  }
 }
 
 /*
@@ -136,6 +166,23 @@ void hash_table_remove(HashTable *ht, char *key)
 {
   // assign hashIndex , two args, key, max (capacity)
   unsigned int hashIndex = hash(key, ht->capacity);
+  // check if bucket at index is occupied, if it is it is a linkedpair, if not it is null
+  // assign current_pair pointer to storage at hash index
+  LinkedPair *current_pair = ht->storage[hashIndex];
+  // create pointer to last pair
+  LinkedPair *last_pair;
+  // if occupied, walk through until you find pair with same key,
+  while (current_pair != NULL && strcmp(current_pair->key, key) != 0)
+  {
+    // assign the storage at current hash index to the current pair next
+    ht->storage[hashIndex] = current_pair->next;
+    // set last pair to current pair
+    last_pair = current_pair;
+    // set current pair to last pair next
+    current_pair = last_pair->next;
+  }
+  // assign the last pair next to current pair next
+  last_pair->next = current_pair->next;
 }
 
 /*
@@ -162,20 +209,20 @@ char *hash_table_retrieve(HashTable *ht, char *key)
  */
 void destroy_hash_table(HashTable *ht)
 {
-  // loop through capacity
-  for (int i = 0; i < ht->capacity; i++)
-  {
-    // if storage at index i does not equal null
-    if (ht->storage[i] != NULL)
-    {
-      // invoke destroy pair, pass in storage at index i
-      destroy_pair(ht->storage[i]);
-    }
-  }
-  // free ht storage
-  free(ht->storage);
-  // free ht
-  free(ht);
+  // // loop through capacity
+  // for (int i = 0; i < ht->capacity; i++)
+  // {
+  //   // if storage at index i does not equal null
+  //   if (ht->storage[i] != NULL)
+  //   {
+  //     // invoke destroy pair, pass in storage at index i
+  //     destroy_pair(ht->storage[i]);
+  //   }
+  // }
+  // // free ht storage
+  // free(ht->storage);
+  // // free ht
+  // free(ht);
 }
 
 /*
@@ -188,8 +235,25 @@ void destroy_hash_table(HashTable *ht)
  */
 HashTable *hash_table_resize(HashTable *ht)
 {
+  // create new hash table
   HashTable *new_ht;
-
+  // allocate enough mem for new hash table
+  new_ht = malloc(sizeof(HashTable));
+  // capacity is double the size of ht capacity
+  new_ht->capacity = 2 * ht->capacity;
+  // pass in double ht capacity as num of blocks and linked pair type pointer
+  new_ht->storage = calloc(2 * ht->capacity, sizeof(LinkedPair *));
+  // loop through original capacity to store in new ht
+  for (int i = 0; i < ht->capacity; i++)
+  {
+    // assign the storage values of old ht to new ht
+    new_ht->storage[i] = ht->storage[i];
+  }
+  // free old ht storage
+  free(ht->storage);
+  // free old ht
+  free(ht);
+  // return new ht
   return new_ht;
 }
 
