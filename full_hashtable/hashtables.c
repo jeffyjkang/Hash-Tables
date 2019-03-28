@@ -183,6 +183,8 @@ void hash_table_remove(HashTable *ht, char *key)
   }
   // assign the last pair next to current pair next
   last_pair->next = current_pair->next;
+  destroy_pair(ht->storage[hashIndex]);
+  // current_pair = NULL;
 }
 
 /*
@@ -197,7 +199,17 @@ char *hash_table_retrieve(HashTable *ht, char *key)
 {
   // assign hashIndex , two args, key, max (capacity)
   unsigned int hashIndex = hash(key, ht->capacity);
-
+  LinkedPair *current_pair = ht->storage[hashIndex];
+  LinkedPair *last_pair;
+  while (current_pair != NULL && strcmp(current_pair->key, key) != 0)
+  {
+    last_pair = current_pair;
+    current_pair = last_pair->next;
+  }
+  if (current_pair != NULL)
+  {
+    return current_pair->value;
+  }
   // if no value at storage at hash index, return null
   return NULL;
 }
@@ -209,20 +221,20 @@ char *hash_table_retrieve(HashTable *ht, char *key)
  */
 void destroy_hash_table(HashTable *ht)
 {
-  // // loop through capacity
-  // for (int i = 0; i < ht->capacity; i++)
-  // {
-  //   // if storage at index i does not equal null
-  //   if (ht->storage[i] != NULL)
-  //   {
-  //     // invoke destroy pair, pass in storage at index i
-  //     destroy_pair(ht->storage[i]);
-  //   }
-  // }
-  // // free ht storage
-  // free(ht->storage);
-  // // free ht
-  // free(ht);
+  // loop through capacity
+  for (int i = 0; i < ht->capacity; i++)
+  {
+    // if storage at index i does not equal null
+    if (ht->storage[i] != NULL)
+    {
+      // invoke destroy pair, pass in storage at index i
+      destroy_pair(ht->storage[i]);
+    }
+  }
+  // free ht storage
+  free(ht->storage);
+  // free ht
+  free(ht);
 }
 
 /*
