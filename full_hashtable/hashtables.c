@@ -98,8 +98,14 @@ unsigned int hash(char *str, int max)
  */
 HashTable *create_hash_table(int capacity)
 {
-  HashTable *ht;
-
+  // from HashTable struct, create new ht pointer, allocate enough mem for hashtable type
+  HashTable *ht = malloc(sizeof(HashTable));
+  // assign int type capacity to capcity of ht struct
+  ht->capacity = capacity;
+  // use calloc an initialize allocated mem block to null
+  // pass in capacity as num of blocks, and linkedpair type pointer
+  ht->storage = calloc(capacity, sizeof(LinkedPair *));
+  // return new ht
   return ht;
 }
 
