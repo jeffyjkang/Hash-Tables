@@ -9,18 +9,28 @@
   More specifically, the `next` field is a pointer pointing to the the 
   next `LinkedPair` in the list of `LinkedPair` nodes. 
  */
-typedef struct LinkedPair {
+typedef struct LinkedPair
+{
+  // pointer to key string
   char *key;
+  // pointer to value string
   char *value;
+  // struct LinkedPair next value which points to next node of the LinkedPair linked list
   struct LinkedPair *next;
+  // LinkedPair
 } LinkedPair;
 
 /*
   Hash table with linked pairs.
  */
-typedef struct HashTable {
+typedef struct HashTable
+{
+  // hash table with int type capacity
   int capacity;
+  // Linked pair struct type with pointer to array storage which is an array of key value pairs
   LinkedPair **storage;
+  // full hash table, that can handle collisions, which is when two distinct piece of data have the same hash value,
+  // it handles what to do, so things don't get overwritten unnecessarily
 } HashTable;
 
 /*
@@ -28,11 +38,15 @@ typedef struct HashTable {
  */
 LinkedPair *create_pair(char *key, char *value)
 {
+  // initialize linkedpair struct type pointer pair to have memory allocation of linkedpair size bytes
   LinkedPair *pair = malloc(sizeof(LinkedPair));
+  // assign pair key with string duplicate func, pass in key's value
   pair->key = strdup(key);
+  // assign pair value with string duplicate func, pass in value's value
   pair->value = strdup(value);
+  // assign pair next with initialization of NULL
   pair->next = NULL;
-
+  // return pair
   return pair;
 }
 
@@ -41,9 +55,14 @@ LinkedPair *create_pair(char *key, char *value)
  */
 void destroy_pair(LinkedPair *pair)
 {
-  if (pair != NULL) {
+  // if pair is not NULL
+  if (pair != NULL)
+  {
+    // free mem of pair key
     free(pair->key);
+    // free mem of pair value
     free(pair->value);
+    // free mem of pair
     free(pair);
   }
 }
@@ -53,16 +72,22 @@ void destroy_pair(LinkedPair *pair)
 
   Do not modify this!
  */
+// same hash function
 unsigned int hash(char *str, int max)
 {
+  // init long type hash to 5381
   unsigned long hash = 5381;
+  // init int type c
   int c;
-  unsigned char * u_str = (unsigned char *)str;
-
-  while ((c = *u_str++)) {
+  // init char type pointer to unsigned char pointer str typecasted
+  unsigned char *u_str = (unsigned char *)str;
+  // while loop, continue while c can be assigned to u_str dref
+  while ((c = *u_str++))
+  {
+    // assign hash to hash left shift operator 5 plus has then add c
     hash = ((hash << 5) + hash) + c;
   }
-
+  // return hash mod max
   return hash % max;
 }
 
@@ -89,7 +114,6 @@ HashTable *create_hash_table(int capacity)
  */
 void hash_table_insert(HashTable *ht, char *key, char *value)
 {
-
 }
 
 /*
@@ -102,7 +126,6 @@ void hash_table_insert(HashTable *ht, char *key, char *value)
  */
 void hash_table_remove(HashTable *ht, char *key)
 {
-
 }
 
 /*
@@ -125,7 +148,6 @@ char *hash_table_retrieve(HashTable *ht, char *key)
  */
 void destroy_hash_table(HashTable *ht)
 {
-
 }
 
 /*
@@ -142,7 +164,6 @@ HashTable *hash_table_resize(HashTable *ht)
 
   return new_ht;
 }
-
 
 #ifndef TESTING
 int main(void)

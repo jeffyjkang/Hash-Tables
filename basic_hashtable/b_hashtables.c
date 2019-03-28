@@ -46,7 +46,7 @@ Pair *create_pair(char *key, char *value)
  ****/
 void destroy_pair(Pair *pair)
 {
-  // if value of pair is not empty
+  // if pair is not NULL
   if (pair != NULL)
   {
     // free memory of pair key
