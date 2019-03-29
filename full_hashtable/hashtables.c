@@ -258,8 +258,16 @@ HashTable *hash_table_resize(HashTable *ht)
   // loop through original capacity to store in new ht
   for (int i = 0; i < ht->capacity; i++)
   {
-    // assign the storage values of old ht to new ht
-    new_ht->storage[i] = ht->storage[i];
+    // assign Linkedpair current_pair pointer to storage at index i
+    LinkedPair *current_pair = ht->storage[i];
+    // loop while current pair exists, occupied
+    while (current_pair != NULL)
+    {
+      // invoke hash table insert function and pass in new hash table, key of current pair and value of current pair
+      hash_table_insert(new_ht, current_pair->key, current_pair->value);
+      // assign current pair next to current pair and continue loop
+      current_pair = current_pair->next;
+    }
   }
   // free old ht storage
   free(ht->storage);
