@@ -9,18 +9,28 @@
   More specifically, the `next` field is a pointer pointing to the the 
   next `LinkedPair` in the list of `LinkedPair` nodes. 
  */
-typedef struct LinkedPair {
+typedef struct LinkedPair
+{
+  // pointer to key string
   char *key;
+  // pointer to value string
   char *value;
+  // struct LinkedPair next value which points to next node of the LinkedPair linked list
   struct LinkedPair *next;
+  // LinkedPair
 } LinkedPair;
 
 /*
   Hash table with linked pairs.
  */
-typedef struct HashTable {
+typedef struct HashTable
+{
+  // hash table with int type capacity
   int capacity;
+  // Linked pair struct type with pointer to array storage which is an array of key value pairs
   LinkedPair **storage;
+  // full hash table, that can handle collisions, which is when two distinct piece of data have the same hash value,
+  // it handles what to do, so things don't get overwritten unnecessarily
 } HashTable;
 
 /*
@@ -28,11 +38,15 @@ typedef struct HashTable {
  */
 LinkedPair *create_pair(char *key, char *value)
 {
+  // initialize linkedpair struct type pointer pair to have memory allocation of linkedpair size bytes
   LinkedPair *pair = malloc(sizeof(LinkedPair));
+  // assign pair key with string duplicate func, pass in key's value
   pair->key = strdup(key);
+  // assign pair value with string duplicate func, pass in value's value
   pair->value = strdup(value);
+  // assign pair next with initialization of NULL
   pair->next = NULL;
-
+  // return pair
   return pair;
 }
 
@@ -41,9 +55,14 @@ LinkedPair *create_pair(char *key, char *value)
  */
 void destroy_pair(LinkedPair *pair)
 {
-  if (pair != NULL) {
+  // if pair is not NULL
+  if (pair != NULL)
+  {
+    // free mem of pair key
     free(pair->key);
+    // free mem of pair value
     free(pair->value);
+    // free mem of pair
     free(pair);
   }
 }
@@ -53,16 +72,22 @@ void destroy_pair(LinkedPair *pair)
 
   Do not modify this!
  */
+// same hash function
 unsigned int hash(char *str, int max)
 {
+  // init long type hash to 5381
   unsigned long hash = 5381;
+  // init int type c
   int c;
-  unsigned char * u_str = (unsigned char *)str;
-
-  while ((c = *u_str++)) {
+  // init char type pointer to unsigned char pointer str typecasted
+  unsigned char *u_str = (unsigned char *)str;
+  // while loop, continue while c can be assigned to u_str dref
+  while ((c = *u_str++))
+  {
+    // assign hash to hash left shift operator 5 plus has then add c
     hash = ((hash << 5) + hash) + c;
   }
-
+  // return hash mod max
   return hash % max;
 }
 
@@ -73,8 +98,14 @@ unsigned int hash(char *str, int max)
  */
 HashTable *create_hash_table(int capacity)
 {
-  HashTable *ht;
-
+  // from HashTable struct, create new ht pointer, allocate enough mem for hashtable type
+  HashTable *ht = malloc(sizeof(HashTable));
+  // assign int type capacity to capcity of ht struct
+  ht->capacity = capacity;
+  // use calloc an initialize allocated mem block to null
+  // pass in capacity as num of blocks, and linkedpair type pointer
+  ht->storage = calloc(capacity, sizeof(LinkedPair *));
+  // return new ht
   return ht;
 }
 
@@ -89,7 +120,38 @@ HashTable *create_hash_table(int capacity)
  */
 void hash_table_insert(HashTable *ht, char *key, char *value)
 {
-
+  // assign hashIndex , two args, key, max (capacity)
+  unsigned int hashIndex = hash(key, ht->capacity);
+  // check if the bucket at that index is occupied, if something in bucket, linkedpair, if not null
+  // assign the current_pair pointer to storage at hash index
+  LinkedPair *current_pair = ht->storage[hashIndex];
+  // create pointer to last pair
+  LinkedPair *last_pair;
+  // if it is occupied, walk through the linkedpairs to see if you find a pair with same key
+  // due to the && wont do a string comparison if current pair is null,
+  // if current pair is not null, exits while loop right away
+  // check if current pair and key passed in is not same
+  while (current_pair != NULL && strcmp(current_pair->key, key) != 0)
+  {
+    // set last pair to current pair
+    last_pair = current_pair;
+    // set current pair to last pair next
+    current_pair = last_pair->next;
+  }
+  if (current_pair != NULL)
+  {
+    // if current pair is occupied
+    current_pair->value = value;
+  }
+  else
+  {
+    // if its not occupied, add a new linkedpair to bucket
+    LinkedPair *new_pair = create_pair(key, value);
+    // assign the storage at hash index to the new pair next
+    new_pair->next = ht->storage[hashIndex];
+    // assign the new pair to storage at hash index
+    ht->storage[hashIndex] = new_pair;
+  }
 }
 
 /*
@@ -102,7 +164,27 @@ void hash_table_insert(HashTable *ht, char *key, char *value)
  */
 void hash_table_remove(HashTable *ht, char *key)
 {
-
+  // assign hashIndex , two args, key, max (capacity)
+  unsigned int hashIndex = hash(key, ht->capacity);
+  // check if bucket at index is occupied, if it is it is a linkedpair, if not it is null
+  // assign current_pair pointer to storage at hash index
+  LinkedPair *current_pair = ht->storage[hashIndex];
+  // create pointer to last pair
+  LinkedPair *last_pair;
+  // if occupied, walk through until you find pair with same key,
+  while (current_pair != NULL && strcmp(current_pair->key, key) != 0)
+  {
+    // assign the storage at current hash index to the current pair next
+    ht->storage[hashIndex] = current_pair->next;
+    // set last pair to current pair
+    last_pair = current_pair;
+    // set current pair to last pair next
+    current_pair = last_pair->next;
+  }
+  // assign the last pair next to current pair next
+  last_pair->next = current_pair->next;
+  destroy_pair(ht->storage[hashIndex]);
+  // current_pair = NULL;
 }
 
 /*
@@ -115,6 +197,20 @@ void hash_table_remove(HashTable *ht, char *key)
  */
 char *hash_table_retrieve(HashTable *ht, char *key)
 {
+  // assign hashIndex , two args, key, max (capacity)
+  unsigned int hashIndex = hash(key, ht->capacity);
+  LinkedPair *current_pair = ht->storage[hashIndex];
+  LinkedPair *last_pair;
+  while (current_pair != NULL && strcmp(current_pair->key, key) != 0)
+  {
+    last_pair = current_pair;
+    current_pair = last_pair->next;
+  }
+  if (current_pair != NULL)
+  {
+    return current_pair->value;
+  }
+  // if no value at storage at hash index, return null
   return NULL;
 }
 
@@ -125,7 +221,20 @@ char *hash_table_retrieve(HashTable *ht, char *key)
  */
 void destroy_hash_table(HashTable *ht)
 {
-
+  // loop through capacity
+  for (int i = 0; i < ht->capacity; i++)
+  {
+    // if storage at index i does not equal null
+    if (ht->storage[i] != NULL)
+    {
+      // invoke destroy pair, pass in storage at index i
+      destroy_pair(ht->storage[i]);
+    }
+  }
+  // free ht storage
+  free(ht->storage);
+  // free ht
+  free(ht);
 }
 
 /*
@@ -138,11 +247,35 @@ void destroy_hash_table(HashTable *ht)
  */
 HashTable *hash_table_resize(HashTable *ht)
 {
+  // create new hash table
   HashTable *new_ht;
-
+  // allocate enough mem for new hash table
+  new_ht = malloc(sizeof(HashTable));
+  // capacity is double the size of ht capacity
+  new_ht->capacity = 2 * ht->capacity;
+  // pass in double ht capacity as num of blocks and linked pair type pointer
+  new_ht->storage = calloc(2 * ht->capacity, sizeof(LinkedPair *));
+  // loop through original capacity to store in new ht
+  for (int i = 0; i < ht->capacity; i++)
+  {
+    // assign Linkedpair current_pair pointer to storage at index i
+    LinkedPair *current_pair = ht->storage[i];
+    // loop while current pair exists, occupied
+    while (current_pair != NULL)
+    {
+      // invoke hash table insert function and pass in new hash table, key of current pair and value of current pair
+      hash_table_insert(new_ht, current_pair->key, current_pair->value);
+      // assign current pair next to current pair and continue loop
+      current_pair = current_pair->next;
+    }
+  }
+  // free old ht storage
+  free(ht->storage);
+  // free old ht
+  free(ht);
+  // return new ht
   return new_ht;
 }
-
 
 #ifndef TESTING
 int main(void)
